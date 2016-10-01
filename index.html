@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WorkBoard</title>
+    <script src="js/react.min.js"></script>
+    <script src="js/react-dom.min.js"></script>
+    <script src="js/browser.min.js"></script>
+
+    <link rel=stylesheet type="text/css" href="style.css">
+
+    <link rel="Shortcut Icon" type="image/x-icon" href="src/icon.ico">
+
+</head>
+<body>
+	
+    <div id="container"></div>
+
+    <script type="text/babel">
+
+        var Work = React.createClass({
+
+            getInitialState: function(){
+            	//set the initial state to edititng, for user can input the task 
+                return{editing: true};
+            },
+
+            save: function(){
+            	
+                this.props.updateWork(this.refs.content.value, this.props.index);
+                this.today = this.refs.contDate.value;
+                this.setState({editing: false});
+            },
+
+            edit: function(){
+            	this.setState({editing: true});
+            },
+
+            remove: function(){
+            	this.props.deleteWork(this.props.index);
+            },
+
+            renderNormal: function(){
+                return(
+                    <div className="workCard">
+                        <div className="work">{this.props.children}</div>
+                        <div ref="dateDiv" className="dueDate">{this.today}</div>
+                        <div className="button editBtn" onClick={this.edit}>Edit</div>
+                        <div className="button delBtn" onClick={this.remove}>Delete</div>
+                    </div>
+                );
+            },
+
+            renderEdit: function(){
+                return(
+                    <div className="workCard">
+                        <textarea ref="content" className="workEdit">{this.props.children}</textarea>
+                        <input ref="contDate" className="dateEdit" type="date" defaultValue={this.today}/>
+                        <div className="button saveBtn" onClick={this.save}>Save</div>
+                    </div>
+                );
+            },
+
+            render: function(){
+                if(this.state.editing){
+                    return this.renderEdit();
+                } else{
+                    return this.renderNormal();
+                }
+            }
+
+        });
+
+        var WorkBoard = React.createClass({
+
+        	getInitialState: function(){
+        		return{
+					workList: []
+        		};
+        	},
+
+        	saveWork: function(text, i){
+        		var arr = this.state.workList;
+        		arr[i] = text;
+        		this.setState({workList: arr});
+        	},
+
+        	removeWork: function(i){
+        		var arr = this.state.workList;
+        		arr.splice(i, 1);
+        		this.setState({workList: arr});
+        	},
+
+        	add: function(text){
+        		var arr = this.state.workList;
+        		arr.push(text);
+        		this.setState({workList: arr});
+        	},
+
+        	eachWork: function(text, i){
+        		return (
+        			<Work key={i} index={i} updateWork={this.saveWork} deleteWork={this.removeWork}>
+        				{text}
+        			</Work>	
+        		);
+        	},
+
+        	render: function(){
+        		return(
+        			<div>
+        				<div className="nav">
+        					<div className="login">Login</div>
+        					<img src="src/icon.png" />
+        				</div>
+        				{this.state.workList.map(this.eachWork)}
+        				<div className="add" onClick={this.add.bind(null, "New work")}>+</div>
+        			</div>
+        		);
+        		
+        	}
+
+        });
+
+        ReactDOM.render(
+            <WorkBoard />,
+            document.getElementById('container')
+        );
+    </script>
+
+</body>
+</html>
